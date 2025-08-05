@@ -1,0 +1,565 @@
+<?php
+// Include authentication check
+require_once 'auth_check.php';
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributor Dashboard - MedChain</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #5E35B1;
+            --primary-hover: #4527A0;
+            --primary-glow: rgba(94, 53, 177, 0.5);
+            --secondary-color: #394264;
+            --bg-color: #F0F4F8;
+            --sidebar-bg: #FFFFFF;
+            --card-bg: rgba(255, 255, 255, 0.65);
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #E2E8F0;
+            --shadow: 0 7px 25px rgba(0, 0, 0, 0.07);
+            --success-color: #28a745;
+            --success-glow: rgba(40, 167, 69, 0.6);
+            --warning-bg: #FFF3CD;
+            --warning-text: #856404;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 8px 2px rgba(40, 167, 69, 0.2); }
+            50% { box-shadow: 0 0 16px 5px var(--success-glow); }
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+        }
+        
+        body {
+            display: flex;
+            overflow-y: auto; 
+        }
+        
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            border-right: 1px solid var(--border-color);
+            flex-shrink: 0;
+            z-index: 1000;
+            overflow-y: auto; 
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header .logo-icon { 
+            width: 40px; 
+            height: 40px;
+            animation: rotate 8s linear infinite;
+        }
+
+        .sidebar-header h1 { 
+            font-size: 1.5rem; 
+            margin: 0; 
+            font-weight: 700; 
+            color: var(--secondary-color); 
+        }
+        
+        .sidebar-nav { 
+            list-style: none; 
+            padding: 1.5rem 0; 
+            margin: 0; 
+        }
+        
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 1rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease-in-out;
+            position: relative;
+        }
+        
+        .sidebar-nav a:hover { 
+            background-color: var(--bg-color); 
+            color: var(--primary-color); 
+            transform: translateX(5px);
+        }
+        
+        .sidebar-nav a.active {
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+            background-size: 200% 200%;
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 2.5rem;
+            flex: 1;
+            min-height: 100vh;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .dashboard-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 2rem; 
+            padding-bottom: 1rem; 
+            border-bottom: 2px solid var(--border-color); 
+        }
+
+        .dashboard-header h2 { 
+            font-size: 2rem; 
+            font-weight: 700; 
+            color: var(--secondary-color); 
+            margin: 0; 
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-name {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px); 
+            transition: all 0.3s ease-in-out; 
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header .icon {
+            width: 24px;
+            height: 24px;
+            color: var(--primary-color);
+        }
+
+        .card-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin: 0;
+        }
+
+        .product-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .product-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .product-info h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+            color: var(--secondary-color);
+        }
+
+        .product-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .pickup-btn {
+            background: linear-gradient(135deg, var(--success-color), #218838);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .pickup-btn:hover {
+            transform: translateY(-2px);
+            animation: pulseGlow 2s infinite;
+        }
+
+        .pickup-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            animation: none;
+            opacity: 0.5;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-picked {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .no-products {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .no-products .icon {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .no-products h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+            </svg>
+            <h1>MedChain</h1>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="#" class="active">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9,22 9,12 15,12 15,22"/>
+                </svg>
+                Dashboard
+            </a>
+            <a href="#">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                    <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+                Products
+            </a>
+            <a href="#">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3.27,6.96 12,12.01 20.73,6.96"/>
+                    <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+                Blockchain
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="dashboard-header">
+            <h2>Distributor Dashboard</h2>
+            <div class="user-info">
+                <span class="user-name">Welcome, <?php echo htmlspecialchars($current_user['full_name'] ?? 'Distributor'); ?></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- Products Section -->
+        <div class="card">
+            <div class="card-header">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                    <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+                <h3>Available Products</h3>
+            </div>
+            
+            <div id="products-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading products...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load products on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+        });
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('../api/get_distributor_products.php');
+                const data = await response.json();
+                
+                if (data.success && data.products && data.products.length > 0) {
+                    displayProducts(data.products);
+                } else {
+                    displayNoProducts();
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                displayNoProducts();
+            }
+        }
+
+        function displayProducts(products) {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+            
+            products.forEach(product => {
+                const productElement = createProductElement(product);
+                container.appendChild(productElement);
+            });
+        }
+
+        function createProductElement(product) {
+            const div = document.createElement('div');
+            div.className = 'product-item';
+            
+            const statusClass = product.pickup_status === 'picked_up' ? 'status-picked' : 'status-pending';
+            const statusText = product.pickup_status === 'picked_up' ? 'Picked Up' : 'Pending Pickup';
+            
+            div.innerHTML = `
+                <div class="product-header">
+                    <div class="product-info">
+                        <h4>${product.brand_name || 'Unknown Product'}</h4>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </div>
+                </div>
+                <div class="product-details">
+                    <div><strong>Batch:</strong> ${product.batch_number || 'N/A'}</div>
+                    <div><strong>Quantity:</strong> ${product.quantity || 0}</div>
+                    <div><strong>Manufacturer:</strong> ${product.manufacturer_name || 'N/A'}</div>
+                    <div><strong>Expiry:</strong> ${formatDate(product.expiry_date)}</div>
+                    <div><strong>Dispensed:</strong> ${formatDate(product.dispensed_at)}</div>
+                    <div><strong>Product ID:</strong> ${product.product_id}</div>
+                </div>
+                ${product.pickup_status !== 'picked_up' ? 
+                    `<button class="pickup-btn" onclick="pickupProduct(${product.id}, '${product.product_id}')">
+                        Pick Up Product
+                    </button>` : 
+                    `<button class="pickup-btn" disabled>Already Picked Up</button>`
+                }
+            `;
+            
+            return div;
+        }
+
+        function displayNoProducts() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = `
+                <div class="no-products">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M16 16s-1.5-2-4-2-4 2-4 2"/>
+                        <line x1="9" y1="9" x2="9.01" y2="9"/>
+                        <line x1="15" y1="9" x2="15.01" y2="9"/>
+                    </svg>
+                    <h4>No Products Available</h4>
+                    <p>No products have arrived from admin yet. Check back later.</p>
+                </div>
+            `;
+        }
+
+        async function pickupProduct(distributorProductId, productId) {
+            if (!confirm('Are you sure you want to pick up this product? This action will be recorded on the blockchain.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('../api/pickup_product.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        distributor_product_id: distributorProductId,
+                        product_id: productId
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Product picked up successfully! Transaction recorded on blockchain.');
+                    loadProducts(); // Refresh the products list
+                } else {
+                    alert('Error picking up product: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error picking up product:', error);
+                alert('Error picking up product. Please try again.');
+            }
+        }
+
+        async function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                try {
+                    const response = await fetch('../otp-login/session_manager.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            action: 'logout'
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        window.location.href = '../otp-login/login_medchain.html';
+                    } else {
+                        // Force redirect even if API call fails
+                        window.location.href = '../otp-login/login_medchain.html';
+                    }
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    // Force redirect even if there's an error
+                    window.location.href = '../otp-login/login_medchain.html';
+                }
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+    </script>
+</body>
+</html>
