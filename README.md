@@ -62,21 +62,21 @@ Follow these steps to set up and run the project on your local machine using XAM
 ### Step-by-Step Installation
 1.  *Clone the Repository:*
     Open your terminal or command prompt and run:
-    
-    git clone https://github.com/techpkunal/Medveda.git
+
+      https://github.com/RajashekharBD/MedVeda_v1.git
     
     Alternatively, you can download the project as a ZIP file and extract it.
 
-2.  **Move Project to htdocs:**Medveda
+1.  **Move Project to htdocs:**Medveda
     * Copy tMedvedae project folder.
     * Navigate to your XAMPP installation directory (e.g., C:\xampp on Windows).
     * Paste the project folder inside the htdocs directory.
 
-3.  *Start XAMPP Servers:*
+2.  *Start XAMPP Servers:*
     * Open the *XAMPP Control Panel*.
     * Click the *Start* button for both the *Apache* and *MySQL* modules.
 
-4.  *Import the Database (If applicable):*
+3.  *Import the Database (If applicable):*
     * Open your web browser and go to http://localhost/phpmyadmin.
     * Click on the *"New"* button on the left sidebar to create a new database. Name it [your_database_name].
     * Select the newly created database.
@@ -84,7 +84,7 @@ Follow these steps to set up and run the project on your local machine using XAM
     * Click *"Choose File"* and select the .sql file located in your project's database folder (e.g., database/database.sql).
     * Click the *"Go"* button at the bottom to start the import.
 Medveda
-5.  *Access the Project:*
+4.  *Access the Project:*
     * Open your web browser.
     * Navigate to: http://localhost/[your-project-folder-name]
     * (Replace [your-project-folder-name] with the actual name of the folder you placed in htdocs).
